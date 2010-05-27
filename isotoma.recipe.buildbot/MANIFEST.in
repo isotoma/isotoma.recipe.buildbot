@@ -1,0 +1,3 @@
+include *.rst *.txt
+recursive-include isotoma/recipe/buildbot *.cfg
+recursive-include isotoma/recipe/buildbot *.tac
