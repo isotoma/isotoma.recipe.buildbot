@@ -1,4 +1,8 @@
-from buildbot.db import dbspec, schema
+from buildbot.db import dbspec
+try:
+    from buildbot.db.schema.manager import DBSchemaManager
+except ImportError:
+    from buildbot.db.schema import DBSchemaManager
 
 def run(spec, basedir):
     print "Creating or updating %s" % spec
