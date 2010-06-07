@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess, os, sys
+import subprocess, os, sys, datetime
 
 class Logger(object):
 
@@ -25,9 +25,22 @@ class Logger(object):
 
         End result is normal console output and a log containing the same info
         """
-        self.log = buildout['buildout'].get("buildout-log", "log.txt")
 
-        self.tee = subprocess.Popen(["tee", self.log], stdin=subprocess.PIPE)
+        parts = buildout['buildout'].get("parts-directory")
+        now = datetime.datetime.now()
+        dateprefix = "%04d-%02d-%02d" % (now.year, now.month, now.day)
+        try:
+            os.mkdir(os.path.join(parts, "log"))
+        except OSError:
+            pass
+        path = os.path.join(parts, "log", dateprefix + ".log")
+        run = 0
+        while os.path.exists(path):
+            path = os.path.join(parts, "log", dateprefix + "." + run + ".log")
+            run = run + 1
+        self.log = buildout['buildout'].get("buildout-log", path)
+        
+        self.tee = subprocess.Popen(["/usr/bin/tee", self.log], stdin=subprocess.PIPE)
         os.dup2(self.tee.stdin.fileno(), sys.stdout.fileno())
         os.dup2(self.tee.stdin.fileno(), sys.stderr.fileno())
 
