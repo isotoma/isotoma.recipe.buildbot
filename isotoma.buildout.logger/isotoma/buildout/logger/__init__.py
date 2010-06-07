@@ -26,6 +26,9 @@ class Logger(object):
         End result is normal console output and a log containing the same info
         """
 
+        # unbuffered stdout, so it interleaves properly with stderr
+        sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+
         parts = buildout['buildout'].get("parts-directory")
         now = datetime.datetime.now()
         dateprefix = "%04d-%02d-%02d" % (now.year, now.month, now.day)
