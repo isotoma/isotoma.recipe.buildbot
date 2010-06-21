@@ -178,6 +178,8 @@ class BuildbotSlave(Buildbot):
 
         # Put a script in the bin directory so its easy to start the thing
         arguments = "'%s'" % self.options['basedir']
+        if self.options.get("syslogprefix", None):
+            arguments = arguments + ", '%s'" % self.options["syslogprefix"]
         self.make_wrapper(self.name, "isotoma.recipe.buildbot.slaverunner", "run", self.bindir, arguments=arguments)
 
         #FIXME: It would be nice to support setting the admin and host files to something here...

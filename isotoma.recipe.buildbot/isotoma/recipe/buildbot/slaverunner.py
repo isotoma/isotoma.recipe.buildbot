@@ -1,7 +1,11 @@
 import sys, os, subprocess
 from buildbot.scripts.runner import run as base_run
 
-def run(base_directory):
+def run(base_directory, usesyslog=None):
+    if usesyslog:
+        from twisted.python import log,syslog
+        syslog.startLogging(prefix=usesyslog)
+
     if len(sys.argv) <= 1 or not sys.argv[1] in ("start", "stop", "tail"):
         print "Huh?"
         print "(start|stop|tail)"
