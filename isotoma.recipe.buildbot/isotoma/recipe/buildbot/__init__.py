@@ -189,3 +189,33 @@ class BuildbotSlave(Buildbot):
     def update(self):
         pass
 
+def uninstall_buildbotslave(name,options):
+    """ called before auto uninstallation of the slave """
+    _check_running_buildbot(options)
+    
+    process = subprocess.Popen(['ps', 'aux'], shell=False, stdout=subprocess.PIPE)
+    result = process.communicate()[0].split('\n')
+    if len([r for r in result if r.find('buildbot-slave')]):
+        print """**** warning: found a buildbot master but there was no twistd.pid file
+        If there are no other expected buildbot instances expected, please stop buildbot, find and stop (kill) any rogue buildbots and start buildbot again ****"""
+
+def uninstall_buildbotmaster(name,options):
+    """ called before auto uninstallation of the master """
+    _check_running_buildbot(options)
+    
+    process = subprocess.Popen(['ps', 'aux'], shell=False, stdout=subprocess.PIPE)
+    result = process.communicate()[0].split('\n')
+    if len([r for r in result if r.find('buildbot')]):
+        print """**** warning: found a buildbot master but there was no twistd.pid file
+        If there are no other expected buildbot instances expected, please stop buildbot, find and stop (kill) any rogue buildbots and start buildbot again ****"""
+
+def _check_running_buildbot(options):
+    basedir = options["basedir"]
+    
+    pid_file_path = os.path.join(basedir,'twistd.pid')
+    if os.path.isfile(pid_file_path):
+        pid_file = open(pid_file_path,'r')
+        pid = pid_file.read()
+        if pid.isdigit() and os.path.exists("/proc/%s" %pid):
+            raise UserError("Buildbot still appears to be running. Please stop it, re-run buildout and then re-start buildbot if required. If this error still results, check for buildbot processes manually and delete %s" %pid_file_path)
+
