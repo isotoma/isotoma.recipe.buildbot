@@ -36,6 +36,10 @@ setup(
             "default = isotoma.recipe.buildbot:BuildbotMaster",
             "slave = isotoma.recipe.buildbot:BuildbotSlave"
         ],
+        "zc.buildout.uninstall": [
+            "default = isotoma.recipe.buildbot:uninstall_buildbotmaster",
+            "slave = isotoma.recipe.buildbot:uninstall_buildbotslave"
+        ],
     }
 )
 
