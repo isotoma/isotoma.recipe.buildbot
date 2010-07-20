@@ -193,27 +193,21 @@ def uninstall_buildbotslave(name, options):
     """ called before auto uninstallation of the slave """
     _check_running_buildbot(name, options)
 
-    process = subprocess.Popen(['ps', 'aux'], shell=False, stdout=subprocess.PIPE)
-    result = process.communicate()[0].split('\n')
-    if len([r for r in result if r.find(name)]):
-        print """**** warning: found a buildbot master but there was no twistd.pid file
-        If there are no other expected buildbot instances expected, please stop buildbot, find and stop (kill) any rogue buildbots and start buildbot again ****"""
-
 def uninstall_buildbotmaster(name, options):
     """ called before auto uninstallation of the master """
     _check_running_buildbot(name, options)
-
-    process = subprocess.Popen(['ps', 'aux'], shell=False, stdout=subprocess.PIPE)
-    result = process.communicate()[0].split('\n')
-    if len([r for r in result if r.find(name)]):
-        print """**** warning: found a buildbot master but there was no twistd.pid file
-        If there are no other expected buildbot instances expected, please stop buildbot, find and stop (kill) any rogue buildbots and start buildbot again ****"""
 
 def _check_running_buildbot(name, options):
     basedir = options["basedir"]
 
     pid_file_path = os.path.join(basedir,'twistd.pid')
     if not os.path.isfile(pid_file_path):
+        process = subprocess.Popen(['ps', 'aux'], shell=False, stdout=subprocess.PIPE)
+        result = process.communicate()[0].split('\n')
+        if len([r for r in result if r.find(name) > -1]):
+            print """**** warning: found a possible %s process but there was no associated twistd.pid
+file. If there are no other buildbot instances expected, please stop buildbot,
+find and stop (kill) any rogue buildbots and start buildbot again ****""" % (name,)
         return
 
     pid = open(pid_file_path,'r').read()
