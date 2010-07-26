@@ -93,6 +93,7 @@ class BuildbotMaster(Buildbot):
         # Setup a working_set so we can find our eggs
         self.ws = pkg_resources.working_set
         self.ws.add_entry(self.buildout["buildout"].get("eggs-directory", "eggs"))
+        self.ws.add_entry(self.buildout["buildout"].get("develop-eggs-directory", "develop-eggs"))
 
         # Create a script to create or upgrade the db
         arguments = "'%s', '%s'" % (self.options["dburl"], self.options["basedir"])
