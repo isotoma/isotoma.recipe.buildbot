@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess, os, sys, datetime
+import subprocess, os, sys, datetime, getpass
 
 class Logger(object):
 
@@ -39,13 +39,33 @@ class Logger(object):
         path = os.path.join(parts, "log", dateprefix + ".log")
         run = 0
         while os.path.exists(path):
-            path = os.path.join(parts, "log", dateprefix + "." + run + ".log")
+            path = os.path.join(parts, "log", dateprefix + "." + str(run) + ".log")
             run = run + 1
         self.log = buildout['buildout'].get("buildout-log", path)
-        
-        self.tee = subprocess.Popen(["/usr/bin/tee", self.log], stdin=subprocess.PIPE)
+
+        self.write_environment(self.log)
+
+        self.tee = subprocess.Popen(["/usr/bin/tee", "-a", self.log], stdin=subprocess.PIPE)
         os.dup2(self.tee.stdin.fileno(), sys.stdout.fileno())
         os.dup2(self.tee.stdin.fileno(), sys.stderr.fileno())
+
+    def write_environment(self, path):
+        f = open(path, "w")
+        f.write("Current date/time is: %s\n" % datetime.datetime.now().isoformat())
+        f.write("Current user is: %s\n" % getpass.getuser())
+        f.write("Current dir is: %s\n" % os.getcwd())
+        f.write("Python: %s\n" % sys.version)
+        f.write("Command line: %s\n" % " ".join(sys.argv))
+        f.write("\n")
+
+        f.write("Current environment:\n")
+        for key, value in os.environ.iteritems():
+            f.write("  %s=%s\n" % (key, value))
+        f.write("\n")
+
+        f.write("\n-------------------------------------------------------------------\n")
+
+        f.close()
 
     def unload(self, buildout):
         """
