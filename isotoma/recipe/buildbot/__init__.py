@@ -97,6 +97,9 @@ class BuildbotMaster(Buildbot):
         arguments = "'%s', '%s'" % (self.options['basedir'], self.options['mastercfg'])
         self.make_wrapper(self.name, "isotoma.recipe.buildbot.runner", "run", self.bindir, arguments=arguments)
 
+        if not os.path.exists(self.options["basedir"]):
+            os.makedirs(self.options["basedir"])
+
         self.make_buildbot_tac()
         self.make_master_cfg()
 
