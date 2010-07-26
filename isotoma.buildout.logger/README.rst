@@ -3,7 +3,7 @@ Logger buildout extension
 
 This package provides a buildout_ extension for logging buildout (and any child
 processes). When added to your buildout extensions, it is on. By default, it logs
-to the current directory but this can be overridden in your buildout.cfg.
+to parts/log/ but this can be overridden in your buildout.cfg.
 
 This recipe uses the 'tee' unix command.
 
@@ -24,7 +24,11 @@ Optional Parameters
 -------------------
 
 buildout-log
-    Path to a file to log to. Default: log.txt
+    Path to a file to log to. By default this is a unique name assigned at runtime in parts/log/.
+snapshot-src
+    A file to take a copy of every time everytime buildout runs. Default: ./buildout.cfg
+snapshot-dst
+    Where to copy snapshot-dst to. Defaults to same folder as buildout-log.
 
 
 Repository
