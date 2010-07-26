@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess, os, sys, datetime, getpass
+import subprocess, os, sys, datetime, getpass, shutil
 
 class Logger(object):
 
@@ -25,29 +25,46 @@ class Logger(object):
 
         End result is normal console output and a log containing the same info
         """
+        self.buildout = buildout
+
+        snapshot_default = os.path.join(buildout['buildout'].get("directory", "."), "buildout.cfg")
+        snapshot_src = buildout['buildout'].get('buildout-snapshot-src', snapshot_default)
+
+        self.determine_paths()
+
+        self.create_snapshot(snapshot_src, self.snapshot_dst)
+
+        self.write_environment(self.log)
 
         # unbuffered stdout, so it interleaves properly with stderr
         sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-        parts = buildout['buildout'].get("parts-directory")
+        self.tee = subprocess.Popen(["/usr/bin/tee", "-a", self.log], stdin=subprocess.PIPE)
+        os.dup2(self.tee.stdin.fileno(), sys.stdout.fileno())
+        os.dup2(self.tee.stdin.fileno(), sys.stderr.fileno())
+
+    def determine_paths(self):
+        parts = self.buildout['buildout'].get("parts-directory")
         now = datetime.datetime.now()
         dateprefix = "%04d-%02d-%02d" % (now.year, now.month, now.day)
         try:
             os.mkdir(os.path.join(parts, "log"))
         except OSError:
             pass
+
         path = os.path.join(parts, "log", dateprefix + ".log")
+        snapshot_path = os.path.join(parts, "log", dateprefix + ".snapshot")
         run = 0
         while os.path.exists(path):
             path = os.path.join(parts, "log", dateprefix + "." + str(run) + ".log")
+            snapshot_path = os.path.join(parts, "log", dateprefix + "." + str(run) + ".snapshot")
             run = run + 1
-        self.log = buildout['buildout'].get("buildout-log", path)
 
-        self.write_environment(self.log)
+        self.log = self.buildout['buildout'].get("buildout-log", path)
+        self.snapshot_dst = self.buildout['buildout'].get("buildout-snapshot-dst", snapshot_path)
 
-        self.tee = subprocess.Popen(["/usr/bin/tee", "-a", self.log], stdin=subprocess.PIPE)
-        os.dup2(self.tee.stdin.fileno(), sys.stdout.fileno())
-        os.dup2(self.tee.stdin.fileno(), sys.stderr.fileno())
+    def create_snapshot(self, src, dst):
+        shutil.copyfile(src, dst)
 
     def write_environment(self, path):
         f = open(path, "w")
