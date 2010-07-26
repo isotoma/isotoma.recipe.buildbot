@@ -16,6 +16,7 @@ import os, sys, subprocess
 from Cheetah.Template import Template as Tmpl
 from zc.buildout import UserError, easy_install
 import zc.recipe.egg
+import pkg_resources
 
 try:
     from hashlib import sha1
@@ -89,6 +90,10 @@ class BuildbotMaster(Buildbot):
     def install(self):
         super(BuildbotMaster, self).install()
 
+        # Setup a working_set so we can find our eggs
+        self.ws = pkg_resources.working_set
+        self.ws.add_entry(self.buildout["buildout"].get("eggs-directory", "eggs"))
+
         # Create a script to create or upgrade the db
         arguments = "'%s', '%s'" % (self.options["dburl"], self.options["basedir"])
         self.make_wrapper("upgrader", "isotoma.recipe.buildbot.upgrader", "run", self.partsdir, arguments=arguments)
@@ -126,22 +131,42 @@ class BuildbotMaster(Buildbot):
         open(self.options["buildbottac"], "w").write(str(c))
         self.installed.append(self.options["buildbottac"])
 
+    def resolve(self, rel_path):
+        """ Given a relative path, i try to resolve it in one of my eggs """
+        for egg in self.options.get("eggs", "").strip().split("\n"):
+            pkg_resources.require(egg)
+            loc = self.ws.find(
+                pkg_resources.Requirement.parse(egg)).location
+            path = os.path.join(loc, rel_path)
+            if os.path.exists(path):
+                return path
+        path = os.path.abspath(rel_path)
+        if os.path.exists(path):
+            return path
+        raise UserError("Cannot find: %s" % rel_path)
+
     def make_master_cfg(self):
         dir, file = os.path.split(self.options["cfg-template"])
         if not os.path.isdir(dir):
             os.makedirs(dir)
 
-        cfgfile = self.options.get("cfgfile", "").strip()
-        if len(cfgfile) > 0:
-            cfgfile = cfgfile.split("\n")
-        else:
-            cfgfile = []
+        __cfgfile = self.options.get("cfgfile", "").strip()
+        cfgfile = []
+        if len(__cfgfile) > 0:
+            __cfgfile = __cfgfile.split("\n")
+            for f in __cfgfile:
+                if not f.startswith("/"):
+                    f = self.resolve(f)
+                cfgfile.append(f)
 
-        cfgdir = self.options.get("cfgdir", "").strip()
-        if len(cfgdir) > 0:
-            cfgdir = cfgdir.split("\n")
-        else:
-            cfgdir = []
+        __cfgdir = self.options.get("cfgdir", "").strip()
+        cfgdir = []
+        if len(__cfgdir) > 0:
+            __cfgdir = cfgdir.split("\n")
+            for d in __cfgdir:
+                if not d.startswith("/"):
+                    d = d.resolve(d)
+                cfgdir.append(dir)
 
         template = open(self.options["cfg-template"]).read()
         c = Tmpl(template, searchList={
