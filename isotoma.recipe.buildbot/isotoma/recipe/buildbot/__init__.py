@@ -114,6 +114,9 @@ class BuildbotMaster(Buildbot):
 
         return self.installed
 
+    # Run this logic *every* time, its the only way to catch egg version changes
+    update = install
+
     def update_database(self):
         # Create an empty database, or upgrade an existing one
         if self.options['use_db'] == 'YES':
