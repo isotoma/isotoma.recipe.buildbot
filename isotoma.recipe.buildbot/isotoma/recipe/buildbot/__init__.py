@@ -169,10 +169,15 @@ class BuildbotMaster(Buildbot):
                     d = d.resolve(d)
                 cfgdir.append(dir)
 
+        if self.options["use_db"] == "YES":
+            dburl = self.options["dburl"]
+        else:
+            dburl = None
+
         template = open(self.options["cfg-template"]).read()
         c = Tmpl(template, searchList={
             "config": self.options["config"],
-            "dburl": self.options["dburl"],
+            "dburl": dburl,
             "cfgfile": cfgfile,
             "cfgdir": cfgdir,
             })
