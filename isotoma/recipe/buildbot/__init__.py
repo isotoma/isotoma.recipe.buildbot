@@ -156,6 +156,9 @@ class BuildbotMaster(Buildbot):
         if len(__cfgfile) > 0:
             __cfgfile = __cfgfile.split("\n")
             for f in __cfgfile:
+                f = f.strip()
+                if not f:
+                    continue
                 if not f.startswith("/"):
                     f = self.resolve(f)
                 cfgfile.append(f)
@@ -165,6 +168,9 @@ class BuildbotMaster(Buildbot):
         if len(__cfgdir) > 0:
             __cfgdir = __cfgdir.split("\n")
             for d in __cfgdir:
+                d = d.strip()
+                if not d:
+                    continue
                 if not d.startswith("/"):
                     d = d.resolve(d)
                 cfgdir.append(d)
