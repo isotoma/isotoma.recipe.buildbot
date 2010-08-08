@@ -163,11 +163,11 @@ class BuildbotMaster(Buildbot):
         __cfgdir = self.options.get("cfgdir", "").strip()
         cfgdir = []
         if len(__cfgdir) > 0:
-            __cfgdir = cfgdir.split("\n")
+            __cfgdir = __cfgdir.split("\n")
             for d in __cfgdir:
                 if not d.startswith("/"):
                     d = d.resolve(d)
-                cfgdir.append(dir)
+                cfgdir.append(d)
 
         if self.options["use_db"] == "YES":
             dburl = self.options["dburl"]
