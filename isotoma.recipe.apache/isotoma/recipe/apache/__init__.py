@@ -15,7 +15,12 @@
 import logging
 import os
 import zc.buildout
+
+import warnings
+warnings.filterwarnings('ignore', '.*', UserWarning, 'Cheetah.Compiler', 1508)
+
 from Cheetah.Template import Template
+
 import isotoma.recipe.gocaptain as gocaptain
 
 try:
@@ -44,7 +49,7 @@ class Apache(object):
         self.options.setdefault("logdir", "/var/log/apache2")
         self.options.setdefault("http_port", "80")
         self.options.setdefault("https_port", "443")
-        self.options.setdefault("namevirtualhost", None)
+        self.options.setdefault("namevirtualhost", "")
         self.options.setdefault("template", sibpath(default_template))
         self.options.setdefault("passwdfile", os.path.join(self.outputdir, "passwd"))
         self.options.setdefault("configfile", os.path.join(self.outputdir, "apache.cfg"))
@@ -94,6 +99,50 @@ class Apache(object):
             for u, p in passwds:
                 pw.update(u, p)
             pw.save()
+
+    def update(self):
+        pass
+
+
+class Redirect(object):
+
+    def __init__(self, buildout, name, options):
+        self.buildout = buildout
+        self.name = name
+        self.options = options
+
+        options.setdefault("template", sibpath("apache-redirect.cfg"))
+        options.setdefault("configfile", os.path.join(buildout['buildout']['parts-directory'], name, "apache.cfg"))
+        options.setdefault("logdir", "/var/log/apache2")
+
+        # Record a SHA1 of the template we use, so we can detect changes in subsequent runs
+        self.options["__hashes_template"] = sha1(open(self.options["template"]).read()).hexdigest()
+
+    def install(self):
+        outputdir, path = os.path.split(os.path.realpath(self.options["configfile"]))
+        if not os.path.exists(outputdir):
+            os.makedirs(outputdir)
+
+        opt = {
+            "serveradmin": self.options["serveradmin"],
+            "logdir": self.options["logdir"],
+            "interface": self.options["interface"],
+            "redirects": [],
+            }
+
+        for line in self.options['redirects'].strip().split("\n"):
+            line = line.strip()
+            opt['redirects'].append(
+                dict(zip(['domain', 'redirect'],
+                         line.split(";"))
+                ))
+
+        template = open(self.options['template']).read()
+        cfgfilename = self.options['configfile']
+        c = Template(template, searchList = opt)
+        open(cfgfilename, "w").write(str(c))
+
+        return [outputdir]
 
     def update(self):
         pass

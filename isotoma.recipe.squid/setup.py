@@ -1,12 +1,11 @@
 from setuptools import setup, find_packages
 
-version = '0.1.5'
+version = '0.0.0'
 
 setup(
-    name = 'isotoma.recipe.apache',
+    name = 'isotoma.recipe.squid',
     version = version,
-    description = "Buildout recipes for apache.",
-    url = "http://pypi.python.org/pypi/isotoma.recipe.apache",
+    description = "Set up squid",
     long_description = open("README.rst").read() + "\n" + \
                        open("CHANGES.txt").read(),
     classifiers = [
@@ -16,15 +15,15 @@ setup(
         "License :: OSI Approved :: Apache Software License",
 
     ],
-    keywords = "proxy buildout apache",
-    author = "Doug Winter",
-    author_email = "doug.winter@isotoma.com",
-    license="Apache Software License",
-    packages = find_packages(exclude=['ez_setup']),
     package_data = {
         '': ['README.rst', 'CHANGES.txt'],
-        'isotoma.recipe.apache': ['apache.cfg', 'apache-ssl.cfg', 'apache-redirect.cfg', 'standalone.cfg']
+        'isotoma.recipe.squid': ['squid.conf']
     },
+    keywords = "squid proxy cache buildout",
+    author = "John Carr",
+    author_email = "john.carr@isotoma.com",
+    license="Apache Software License",
+    packages = find_packages(exclude=['ez_setup']),
     namespace_packages = ['isotoma', 'isotoma.recipe'],
     include_package_data = True,
     zip_safe = False,
@@ -39,9 +38,7 @@ setup(
     ),
     entry_points = {
         "zc.buildout": [
-            "default = isotoma.recipe.apache:Apache",
-            "redirect = isotoma.recipe.apache:Redirect",
-            "standalone = isotoma.recipe.apache:Standalone",
+            "default = isotoma.recipe.squid:Squid",
         ],
     }
 )
