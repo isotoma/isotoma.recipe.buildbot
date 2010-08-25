@@ -35,10 +35,10 @@ class Buildbot(object):
         self.options = options
         self.buildout = buildout
 
-        eggs = options.get("eggs", "").strip().split()
+        self.eggs = [x.strip() for x in options.get("eggs", "").strip().split() if x.strip()]
 
         self.egg = zc.recipe.egg.Scripts(buildout, name, {
-            "eggs": "\n".join(["buildbot", "isotoma.recipe.buildbot", ]  + eggs),
+            "eggs": "\n".join(["buildbot", "isotoma.recipe.buildbot", ]  + self.eggs),
             })
 
         self.bindir = self.buildout['buildout']['bin-directory']
@@ -134,7 +134,7 @@ class BuildbotMaster(Buildbot):
 
     def resolve(self, rel_path):
         """ Given a relative path, i try to resolve it in one of my eggs """
-        for egg in self.options.get("eggs", "").strip().split("\n"):
+        for egg in self.eggs:
             pkg_resources.require(egg)
             loc = self.ws.find(
                 pkg_resources.Requirement.parse(egg)).location
