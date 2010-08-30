@@ -1,3 +1,4 @@
+import os
 from buildbot.db import dbspec
 try:
     from buildbot.db.schema.manager import DBSchemaManager
@@ -6,6 +7,7 @@ except ImportError:
 
 def run(spec, basedir):
     print "Creating or updating %s" % spec
+    os.chdir(basedir)
     s = dbspec.DBSpec.from_url(spec)
     sm = DBSchemaManager(s, basedir)
     print "Currently at %s, upgrading to latest" % sm.get_db_version()
