@@ -128,7 +128,7 @@ class BuildbotMaster(Buildbot):
         c = Tmpl(template, searchList={
             "basedir": self.options["basedir"],
             "mastercfg": self.options["mastercfg"],
-            "system-logrotation": self.options.get("system-logrotation", False).lower() == "true",
+            "system-logrotation": self.options.get("system-logrotation", "false").lower() == "true",
             })
         open(self.options["buildbottac"], "w").write(str(c))
         self.installed.append(self.options["buildbottac"])
