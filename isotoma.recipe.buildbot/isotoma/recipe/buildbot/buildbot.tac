@@ -1,7 +1,7 @@
 
 from twisted.application import service
 from buildbot.master import BuildMaster
-from isotoma.recipes.buildbot.support import RotatableFileLogObserver
+from isotoma.recipe.buildbot.support import RotatableFileLogObserver
 
 basedir = r'$basedir'
 configfile = r'master.cfg'
