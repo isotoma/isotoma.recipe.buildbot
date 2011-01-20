@@ -30,6 +30,8 @@ def sibpath(filename):
 
 class Buildbot(object):
 
+    base_eggs = ["isotoma.recipe.buildbot"]
+
     def __init__(self, buildout, name, options):
         self.name = name
         self.options = options
@@ -38,7 +40,7 @@ class Buildbot(object):
         self.eggs = [x.strip() for x in options.get("eggs", "").strip().split() if x.strip()]
 
         self.egg = zc.recipe.egg.Scripts(buildout, name, {
-            "eggs": "\n".join(["buildbot", "isotoma.recipe.buildbot", ]  + self.eggs),
+            "eggs": "\n".join(self.base_eggs  + self.eggs),
             })
 
         self.bindir = self.buildout['buildout']['bin-directory']
@@ -52,9 +54,6 @@ class Buildbot(object):
         if not os.path.isdir(self.partsdir):
             os.makedirs(self.partsdir)
 
-        # Make a full unmonkey-patched builbot script in parts
-        self.make_wrapper("buildbot", "buildbot.scripts.runner", "run", self.partsdir)
-
         return self.installed
 
     def make_wrapper(self, name, module, func, path, **kwargs):
@@ -65,8 +64,13 @@ class Buildbot(object):
 
 class BuildbotMaster(Buildbot):
 
+    base_eggs = ["buildbot"] + Buildbot.base_eggs
+
     def __init__(self, buildout, name, options):
         super(BuildbotMaster, self).__init__(buildout, name, options)
+
+        # Make a full unmonkey-patched builbot script in parts
+        self.make_wrapper("buildbot", "buildbot.scripts.runner", "run", self.partsdir)
 
         # Locations of the templates we use for master.cfg and buildbot.tac
         self.options.setdefault("cfg-template", sibpath("master.cfg"))
@@ -199,6 +203,8 @@ class BuildbotMaster(Buildbot):
 class BuildbotSlave(Buildbot):
     """ A Slave configuration for buildbot  """
 
+    base_eggs = ["buildbot-slave"] + Buildbot.base_eggs
+
     def __init__(self, buildout, name, options):
         super(BuildbotSlave, self).__init__(buildout, name, options)
 
@@ -210,7 +216,10 @@ class BuildbotSlave(Buildbot):
     def install(self):
         super(BuildbotSlave, self).install()
 
-        result = subprocess.call([os.path.join(self.partsdir, "buildbot"), "create-slave", self.options["basedir"], 
+        # Make a full unmonkey-patched builbot script in parts
+        self.make_wrapper("buildslave", "buildslave.scripts.runner", "run", self.partsdir)
+
+        result = subprocess.call([os.path.join(self.partsdir, "buildslave"), "create-slave", self.options["basedir"], 
                         "%s:%s" % (self.options["master-host"],self.options["master-port"]), self.options["username"], self.options["password"]])
 
         if result:

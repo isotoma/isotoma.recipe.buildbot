@@ -1,5 +1,5 @@
 import sys, os, subprocess
-from buildbot.scripts.runner import run as base_run
+from buildslave.scripts.runner import run as base_run
 
 def run(base_directory, usesyslog=None):
     if usesyslog:
