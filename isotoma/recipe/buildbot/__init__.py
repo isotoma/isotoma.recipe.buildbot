@@ -69,9 +69,6 @@ class BuildbotMaster(Buildbot):
     def __init__(self, buildout, name, options):
         super(BuildbotMaster, self).__init__(buildout, name, options)
 
-        # Make a full unmonkey-patched builbot script in parts
-        self.make_wrapper("buildbot", "buildbot.scripts.runner", "run", self.partsdir)
-
         # Locations of the templates we use for master.cfg and buildbot.tac
         self.options.setdefault("cfg-template", sibpath("master.cfg"))
         self.options.setdefault("tac-template", sibpath("buildbot.tac"))
@@ -93,6 +90,9 @@ class BuildbotMaster(Buildbot):
 
     def install(self):
         super(BuildbotMaster, self).install()
+
+        # Make a full unmonkey-patched builbot script in parts
+        self.make_wrapper("buildbot", "buildbot.scripts.runner", "run", self.partsdir)
 
         # Setup a working_set so we can find our eggs
         self.ws = pkg_resources.working_set
