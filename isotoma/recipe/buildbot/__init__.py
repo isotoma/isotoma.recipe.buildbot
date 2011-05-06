@@ -78,6 +78,7 @@ class BuildbotMaster(Buildbot):
         self.options.setdefault("mastercfg", os.path.join(options["basedir"], "master.cfg"))
         self.options.setdefault("buildbottac", os.path.join(options["basedir"], "buildbot.tac"))
         self.options.setdefault("dburl", "sqlite:///state.sqlite")
+        self.options.setdefault("use_db", "yes")
 
         # Record a SHA1 of the template we use, so we can detect changes in subsequent runs
         self.options["__hashes_cfg"] = sha1(open(self.options["cfg-template"]).read()).hexdigest()
@@ -120,7 +121,7 @@ class BuildbotMaster(Buildbot):
 
     def update_database(self):
         # Create an empty database, or upgrade an existing one
-        if self.options['use_db'] == 'YES':
+        if self.options['use_db'].lower() in ('yes', 'true', 'on'):
             subprocess.call([os.path.join(self.partsdir, "upgrader")])
 
     def make_buildbot_tac(self):
@@ -180,7 +181,7 @@ class BuildbotMaster(Buildbot):
                     d = d.resolve(d)
                 cfgdir.append(d)
 
-        if self.options["use_db"] == "YES":
+        if self.options["use_db"].lower() in ("yes", "true", "on"):
             dburl = self.options["dburl"]
         else:
             dburl = None
