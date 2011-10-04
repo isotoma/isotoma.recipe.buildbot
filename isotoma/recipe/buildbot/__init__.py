@@ -220,7 +220,7 @@ class BuildbotSlave(Buildbot):
         # Make a full unmonkey-patched builbot script in parts
         self.make_wrapper("buildslave", "buildslave.scripts.runner", "run", self.partsdir)
 
-        result = subprocess.call([os.path.join(self.partsdir, "buildslave"), "create-slave", self.options["basedir"], 
+        result = subprocess.call([os.path.join(self.partsdir, "buildslave"), "create-slave", "--umask=022", self.options["basedir"], 
                         "%s:%s" % (self.options["master-host"],self.options["master-port"]), self.options["username"], self.options["password"]])
 
         if result:
