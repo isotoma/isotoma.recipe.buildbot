@@ -1,0 +1,8 @@
+Changelog
+=========
+
+0.0.27 (unreleased)
+-------------------
+
+- Fix slave umask after twistd clobbers it
+
