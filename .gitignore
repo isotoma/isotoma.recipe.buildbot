@@ -5,4 +5,4 @@ eggs/
 isotoma.recipe.buildbot.egg-info/
 parts/
 var/
-
+.installed.cfg
