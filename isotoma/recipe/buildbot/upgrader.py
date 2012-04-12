@@ -1,4 +1,5 @@
 import os
+from twisted.internet import defer
 
 try:
     from buildbot.db import dbspec
@@ -22,10 +23,31 @@ except ImportError:
     from buildbot.db import connector
     from buildbot.master import BuildMaster
 
+    try:
+        from buildbot import config as cm
+        def get_master(basedir):
+             cfg = cm.MasterConfig.loadConfig(basedir, 'master.cfg')
+             master = BuildMaster(basedir)
+             master.config = cfg
+             return master
+    except ImportError:
+        def get_master(basedir):
+             return BuildMaster(basedir)
+
     @in_reactor
+    @defer.inlineCallbacks
     def run(spec, basedir):
         print "Creating or updating %s" % spec
         os.chdir(basedir)
 
-        db = connector.DBConnector(BuildMaster(basedir), spec, basedir=basedir)
-        return db.model.upgrade()
+        master = get_master(basedir)
+
+        if hasattr(connector, "DatabaseNotReadyError"):
+            db = connector.DBConnector(master, basedir=basedir)
+        else:
+            db = connector.DBConnector(master, spec, basedir=basedir)
+
+        if hasattr(db, "setup"):
+            yield db.setup(check_version=False, verbose=True)
+        yield db.model.upgrade()
+

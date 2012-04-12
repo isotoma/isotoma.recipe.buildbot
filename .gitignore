@@ -1,0 +1,8 @@
+*.pyc
+bin/
+develop-eggs/
+eggs/
+isotoma.recipe.buildbot.egg-info/
+parts/
+var/
+
