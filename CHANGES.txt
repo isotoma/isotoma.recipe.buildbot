@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.29 (unreleased)
+0.0.29 (2012-05-07)
 -------------------
 
 - Support buildbot 0.8.7 (pre)

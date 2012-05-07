@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.0.29dev'
+version = '0.0.29'
 
 setup(
     name = 'isotoma.recipe.buildbot',
