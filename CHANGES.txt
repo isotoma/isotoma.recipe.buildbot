@@ -4,13 +4,13 @@ Changelog
 0.0.29 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Support buildbot 0.8.7 (pre)
 
 
 0.0.28 (2012-04-12)
 -------------------
 
-- Nothing changed yet.
+- Support buildbot 0.8.6
 
 
 0.0.27 (2011-10-04)

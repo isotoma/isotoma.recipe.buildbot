@@ -1,8 +1,7 @@
 import os
 from twisted.internet import defer
 
-try:
-    from buildbot.db import dbspec
+def upgrade_1():
     try:
         from buildbot.db.schema.manager import DBSchemaManager
     except ImportError:
@@ -17,8 +16,9 @@ try:
         sm.upgrade()
         print "Done"
 
-except ImportError:
+    return run
 
+def upgrade_2():
     from buildbot.scripts.runner import in_reactor
     from buildbot.db import connector
     from buildbot.master import BuildMaster
@@ -50,4 +50,32 @@ except ImportError:
         if hasattr(db, "setup"):
             yield db.setup(check_version=False, verbose=True)
         yield db.model.upgrade()
+
+    return run
+
+
+def upgrade_3(basedir):
+    def run(spec, basedir):
+        config = {}
+        config['quiet'] = False
+        config['basedir'] = basedir
+
+        def upgradeFiles(config):
+            print "Skipping file upgrade"
+        upgrade_master.upgradeFiles = upgradeFiles
+        upgrade_master.upgradeMaster(config)
+
+    return run
+
+
+try:
+    from buildbot.db import dbspec
+    run = upgrade_1()
+except ImportError:
+    try:
+       from buildbot.scripts import upgrade_master
+       run = upgrade_3()
+    except ImportError:
+       run = upgrade_2()
+
 
