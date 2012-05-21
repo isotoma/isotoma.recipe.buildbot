@@ -54,7 +54,7 @@ def upgrade_2():
     return run
 
 
-def upgrade_3(basedir):
+def upgrade_3():
     def run(spec, basedir):
         config = {}
         config['quiet'] = False
