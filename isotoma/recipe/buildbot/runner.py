@@ -1,6 +1,16 @@
 import sys, os, subprocess
 from buildbot.scripts.runner import run as base_run
 
+try:
+    from buildbot.scripts import start
+    class Follower(start.Follower):
+        def follow(self, basedir):
+            return 0
+    start.Follower = Follower
+except ImportError:
+    pass
+
+
 def run(base_directory, master_cfg):
     if len(sys.argv) <= 1 or not sys.argv[1] in ("start", "stop", "check", "reconfig", "tail"):
         print "Huh?"
