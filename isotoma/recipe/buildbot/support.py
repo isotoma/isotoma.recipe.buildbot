@@ -15,11 +15,11 @@ class RotatableFileLogObserver(object):
         else:
             logFile = logfile.LogFile.fromFullPath(logfilename, rotateLength=None)
             # Override if signal is set to None or SIG_DFL (0)
-            if not signal.getsignal(signal.SIGUSR1):
+            if not signal.getsignal(signal.SIGUSR2):
                 def signalHandler(signal, frame):
                     from twisted.internet import reactor
                     reactor.callFromThread(logFile.reopen)
-                signal.signal(signal.SIGUSR1, signalHandler)
+                signal.signal(signal.SIGUSR2, signalHandler)
         self.observer = log.FileLogObserver(logFile)
 
     def __call__(self, eventDict):

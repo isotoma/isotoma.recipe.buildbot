@@ -4,7 +4,8 @@ Changelog
 0.0.32 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- SIGUSR1 will become "graceful shutdown", so use SIGUSR2 for log rotation
+- Add logrotate and graceful-shutdown helpers to wrapper script
 
 
 0.0.31 (2012-06-06)
