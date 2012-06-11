@@ -41,10 +41,10 @@ def run(base_directory, master_cfg):
         except KeyboardInterrupt:
             return 0
 
-    if sys.argv[1:] == "graceful-stop":
+    if sys.argv[1] == "graceful-stop":
         return send_signal(base_directory, master_cfg, signal.SIGUSR1)
 
-    if sys.argv[1:] == "logrotate":
+    if sys.argv[1] == "logrotate":
         return send_signal(base_directory, master_cfg, signal.SIGUSR2)
 
     if sys.argv[1] == "start":
